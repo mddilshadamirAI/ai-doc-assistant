@@ -16,10 +16,10 @@ else:
 # --- Try the newest supported model names ---
 # In 2026, 'gemini-2.5-flash' or 'gemini-3-flash' are the standard free models.
 try:
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash-lite')
 except:
     # Fallback to the latest version of Gemini 3 if 2.5 is busy
-    model = genai.GenerativeModel('gemini-2.0-flash-lite')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
 @st.cache_data
 def get_ai_summary(text):
