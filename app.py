@@ -6,17 +6,20 @@ from PyPDF2 import PdfReader
 st.set_page_config(page_title="AI Document Assistant", page_icon="📄")
 
 # --- Security: Get API Key from Streamlit Secrets ---
-# --- Security: Get API Key from Streamlit Secrets ---
-# --- Security: Get API Key from Streamlit Secrets ---
 if "GOOGLE_API_KEY" in st.secrets:
-    # We use 'v1' instead of letting it default to 'v1beta'
+    # Force the stable 'v1' API instead of 'v1beta'
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 else:
     st.error("Please set the GOOGLE_API_KEY in your Streamlit Secrets.")
     st.stop()
 
-# Use 'gemini-pro' - it is the most stable version for the v1 API
-model = genai.GenerativeModel('gemini-pro')
+# --- Try the newest supported model names ---
+# In 2026, 'gemini-2.5-flash' or 'gemini-3-flash' are the standard free models.
+try:
+    model = genai.GenerativeModel('gemini-2.5-flash')
+except:
+    # Fallback to the latest version of Gemini 3 if 2.5 is busy
+    model = genai.GenerativeModel('gemini-3-flash')
 # --- App UI ---
 st.title("📄 Smart Doc Insight")
 st.markdown("Upload any document (Bill, Marksheet, ID) and let AI analyze it.")
