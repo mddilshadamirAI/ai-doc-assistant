@@ -21,7 +21,7 @@ except:
     # Fallback to the latest version of Gemini 3 if 2.5 is busy
     model = genai.GenerativeModel('gemini-3-flash')
 # --- App UI ---
-st.title("📄 Smart Doc Insight")
+st.title("📄Dilshad Smart Doc Insight")
 st.markdown("Upload any document (Bill, Marksheet, ID) and let AI analyze it.")
 
 # Sidebar for instructions
