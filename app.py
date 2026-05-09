@@ -13,7 +13,7 @@ except:
     st.error("Please set the GOOGLE_API_KEY in your Streamlit Secrets.")
     st.stop()
 
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # --- App UI ---
 st.title("📄 Smart Doc Insight")
