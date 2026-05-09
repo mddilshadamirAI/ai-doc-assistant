@@ -7,14 +7,16 @@ st.set_page_config(page_title="AI Document Assistant", page_icon="📄")
 
 # --- Security: Get API Key from Streamlit Secrets ---
 # --- Security: Get API Key from Streamlit Secrets ---
+# --- Security: Get API Key from Streamlit Secrets ---
 if "GOOGLE_API_KEY" in st.secrets:
-    # We add transport='rest' here to fix the 404/NotFound error
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"], transport='rest')
+    # We use 'v1' instead of letting it default to 'v1beta'
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 else:
     st.error("Please set the GOOGLE_API_KEY in your Streamlit Secrets.")
     st.stop()
 
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+# Use 'gemini-pro' - it is the most stable version for the v1 API
+model = genai.GenerativeModel('gemini-pro')
 # --- App UI ---
 st.title("📄 Smart Doc Insight")
 st.markdown("Upload any document (Bill, Marksheet, ID) and let AI analyze it.")
