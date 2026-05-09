@@ -3,7 +3,7 @@ import google.generativeai as genai
 from PyPDF2 import PdfReader
 
 # --- Page Configuration ---
-st.set_page_config(page_title="AI Document Assistant", page_icon="📄")
+st.set_page_config(page_title="Dilshad AI Document Assistant", page_icon="📄")
 
 # --- Security: Get API Key from Streamlit Secrets ---
 if "GOOGLE_API_KEY" in st.secrets:
