@@ -19,7 +19,28 @@ try:
     model = genai.GenerativeModel('gemini-2.5-flash')
 except:
     # Fallback to the latest version of Gemini 3 if 2.5 is busy
-    model = genai.GenerativeModel('gemini-3-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash-lite')
+
+@st.cache_data
+def get_ai_summary(text):
+    """Summarizes the document once and saves the result."""
+    summary_prompt = f"""
+    Analyze this document text:
+    1. Identify document type (Bill, Marksheet, ID, etc.).
+    2. Provide a 3-bullet point summary.
+    3. Give specific advice (how to pay if bill, top marks if marksheet).
+    
+    Text: {text}
+    """
+    response = model.generate_content(summary_prompt)
+    return response.text
+
+@st.cache_data
+def get_ai_answer(text, question):
+    """Answers specific questions about the document."""
+    chat_prompt = f"Context: {text}\nQuestion: {question}"
+    response = model.generate_content(chat_prompt)
+    return response.text
 # --- App UI ---
 st.title("📄Dilshad Smart Doc Insight")
 st.markdown("Upload any document (Bill, Marksheet, ID) and let AI analyze it.")
