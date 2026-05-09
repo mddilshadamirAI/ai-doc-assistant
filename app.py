@@ -6,15 +6,15 @@ from PyPDF2 import PdfReader
 st.set_page_config(page_title="AI Document Assistant", page_icon="📄")
 
 # --- Security: Get API Key from Streamlit Secrets ---
-try:
-    API_KEY = st.secrets["GOOGLE_API_KEY"]
-    genai.configure(api_key=API_KEY)
-except:
+# --- Security: Get API Key from Streamlit Secrets ---
+if "GOOGLE_API_KEY" in st.secrets:
+    # We add transport='rest' here to fix the 404/NotFound error
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"], transport='rest')
+else:
     st.error("Please set the GOOGLE_API_KEY in your Streamlit Secrets.")
     st.stop()
 
 model = genai.GenerativeModel('gemini-1.5-flash-latest')
-
 # --- App UI ---
 st.title("📄 Smart Doc Insight")
 st.markdown("Upload any document (Bill, Marksheet, ID) and let AI analyze it.")
