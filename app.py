@@ -59,9 +59,9 @@ st.markdown("### Professional Offline Document Analysis")
 
 with st.sidebar:
     st.header("App Stats")
-    st.success("Mode: Local Logic (No API)")
+    st.success("Mode: Pdf reader")
     st.info("Limit: Unlimited")
-    st.write("This tool extracts data locally on your Chromebook for maximum speed and privacy.")
+    st.write("This tool extracts data from your file and pdf to tell you what is file about and you can search for key words.")
 
 uploaded_file = st.file_uploader("Upload PDF", type="pdf")
 
