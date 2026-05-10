@@ -55,13 +55,13 @@ def universal_extractor(text):
 
 # --- App UI ---
 st.title("📄 Dilshad Smart Doc Insight")
-st.markdown("### Professional Offline Document Analysis")
+st.markdown("### Document Analyser")
 
 with st.sidebar:
     st.header("App Stats")
-    st.success("Mode: Local Logic (No API)")
-    st.info("Limit: Unlimited")
-    st.write("This tool extracts data locally on your Chromebook for maximum speed and privacy.")
+    st.success("Mode: Logical Extracter")
+    st.info("Made by Md Dilshad Amir")
+    st.write("This tool extracts data locally from your pdf file and make summary you can also serach for the keywords available in pdf file")
 
 uploaded_file = st.file_uploader("Upload PDF", type="pdf")
 
@@ -110,7 +110,7 @@ if uploaded_file:
 
         # Local Search Feature
         st.write("---")
-        query = st.text_input("🔍 Quick Search (e.g. 'Science' or 'Jehanabad')")
+        query = st.text_input("🔍 Quick Search (e.g. 'Science' or 'bill')")
         if query:
             clean_text = clean_extracted_text(raw_text)
             if query.lower() in clean_text.lower():
