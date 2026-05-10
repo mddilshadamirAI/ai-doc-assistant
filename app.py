@@ -1,109 +1,124 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 import re
-from collections import Counter
+import string
 
 # --- Page Configuration ---
-st.set_page_config(page_title="Dilshad Smart Doc Insight", page_icon="📄")
+st.set_page_config(page_title="Dilshad Smart Doc Insight", page_icon="📄", layout="centered")
 
-# --- NON-AI LOGIC FUNCTIONS ---
+# --- REFINED LOGIC FUNCTIONS ---
 
-def offline_summarize(text):
-    """Summarizes text by finding the most frequent important words."""
-    # 1. Identify Document Type based on keywords
+def clean_extracted_text(text):
+    """Removes non-printable characters and fixes the '????' issue."""
+    # This keeps only readable characters and standard punctuation
+    printable = set(string.printable + "₹")
+    cleaned = "".join(filter(lambda x: x in printable or x.isspace(), text))
+    # Remove multiple spaces or weird line breaks
+    return re.sub(r'\s+', ' ', cleaned).strip()
+
+def universal_extractor(text):
+    """Extracts structured data from ANY document using pattern matching."""
+    data = {}
+    
+    # 1. Cleaner Text
+    text = clean_extracted_text(text)
+
+    # 2. Extract Document Type
     doc_type = "General Document"
-    text_lower = text.lower()
-    if any(word in text_lower for word in ["bill", "invoice", "amt", "due date", "payable"]):
+    t_low = text.lower()
+    if any(x in t_low for x in ["intimation", "selection", "admission"]):
+        doc_type = "Selection/Admission Letter"
+    elif any(x in t_low for x in ["bill", "invoice", "receipt"]):
         doc_type = "Bill / Invoice"
-    elif any(word in text_lower for word in ["marks", "grade", "result", "percentage", "roll no"]):
-        doc_type = "Marksheet / Academic Record"
-    elif any(word in text_lower for word in ["aadhaar", "pan card", "passport", "dob", "identity"]):
-        doc_type = "Identity Document"
+    elif any(x in t_low for x in ["marks", "grade", "percentage"]):
+        doc_type = "Academic Record"
 
-    # 2. Extract Key Dates and Amounts
-    dates = re.findall(r'\d{2}[/-]\d{2}[/-]\d{4}', text)
-    amounts = re.findall(r'(?:₹|Rs\.|Rs|Total|Amt)\s*[:]*\s*(\d+(?:,\d+)*(?:\.\d+)?)', text, re.IGNORECASE)
-    
-    # 3. Simple Summary Generation
-    sentences = text.split('.')
-    # Filter sentences to find 'important' ones
-    summary_lines = []
-    for s in sentences:
-        if any(key in s.lower() for key in ["total", "date", "name", "no", "id", "result"]):
-            if len(s.strip()) > 10:
-                summary_lines.append(s.strip())
-    
-    summary = f"**Document Type:** {doc_type}\n\n"
-    summary += "**Key Highlights:**\n"
-    for line in summary_lines[:3]: # Top 3 important lines
-        summary += f"* {line}\n"
-    
-    if doc_type == "Bill / Invoice" and amounts:
-        summary += f"\n**Founder Advice:** This looks like a bill for ₹{amounts[0]}. Make sure to check the due date to avoid late fees!"
-    elif doc_type == "Marksheet / Academic Record":
-        summary += f"\n**Founder Advice:** Great job on these results! Focus on the subjects with the highest marks for your portfolio."
-        
-    return summary
+    # 3. Key-Value Extraction (The 'Colon' Strategy)
+    # Looks for words like 'Name:', 'ID:', 'Roll No:' etc.
+    patterns = {
+        "Name": r"(?:Name|नाम)\s*[:ः-]\s*([A-Z\s]+)",
+        "ID/Barcode": r"(?:Barcode|Reference|ID|No)\s*[:ः-]\s*(\w+)",
+        "College/Org": r"(?:College|Institution|School|संस्थान)\s*[:ः-]\s*([^,\.]+)",
+        "Stream/Faculty": r"(?:Stream|Faculty|संकाय)\s*[:ः-]\s*([A-Za-z]+)"
+    }
 
-def offline_search(text, query):
-    """Finds specific info in the text without AI."""
-    query = query.lower()
-    sentences = text.split('.')
-    
-    # Check for date requests
-    if "date" in query:
-        dates = re.findall(r'\d{2}[/-]\d{2}[/-]\d{4}', text)
-        return f"I found these dates in the document: {', '.join(dates)}" if dates else "No dates found."
-    
-    # Check for amount requests
-    if "amount" in query or "total" in query or "marks" in query:
-        numbers = re.findall(r'(\d+(?:,\d+)*(?:\.\d+)?)', text)
-        relevant_context = [s for s in sentences if any(k in s.lower() for k in ["total", "marks", "rs", "₹"])]
-        return f"Possible values found: {', '.join(numbers[:5])}\n\nContext: {relevant_context[0] if relevant_context else 'No context found.'}"
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            data[key] = match.group(1).strip()
 
-    # General Search
-    for s in sentences:
-        if query in s.lower():
-            return f"Match found: ...{s.strip()}..."
-            
-    return "I couldn't find a direct answer. Try searching for a specific keyword like 'Total' or 'Date'."
+    # 4. Universal Pattern Matching (Dates & Money)
+    data["Dates"] = list(set(re.findall(r'\d{2}[/-]\d{2}[/-]\d{4}', text)))
+    data["Amounts"] = list(set(re.findall(r'(?:₹|Rs\.|Total)\s*[:]*\s*(\d+(?:,\d+)*(?:\.\d+)?)', text, re.IGNORECASE)))
+
+    return doc_type, data
 
 # --- App UI ---
-st.title("📄 Dilshad Smart Doc Insight (Offline Mode)")
-st.markdown("Upload a PDF. This version works **without AI** using fast pattern matching.")
+st.title("📄 Dilshad Smart Doc Insight")
+st.markdown("### Professional Offline Document Analysis")
 
 with st.sidebar:
-    st.header("Founder Path Mode")
-    st.info("This version uses Regex & Logic. No API limits!")
-    st.write("1. Upload PDF")
-    st.write("2. Get Instant Extraction")
-    st.write("3. Search for Keywords")
+    st.header("App Stats")
+    st.success("Mode: Local Logic (No API)")
+    st.info("Limit: Unlimited")
+    st.write("This tool extracts data locally on your Chromebook for maximum speed and privacy.")
 
-uploaded_file = st.file_uploader("Upload your document (PDF only)", type="pdf")
+uploaded_file = st.file_uploader("Upload PDF", type="pdf")
 
-if uploaded_file is not None:
-    with st.spinner("Processing locally..."):
+if uploaded_file:
+    with st.spinner("Analyzing document structure..."):
         reader = PdfReader(uploaded_file)
-        document_text = ""
+        raw_text = ""
         for page in reader.pages:
             content = page.extract_text()
-            if content:
-                document_text += content
+            if content: raw_text += content
 
-    if document_text.strip() == "":
-        st.error("Text extraction failed. This might be a scanned image.")
+    if not raw_text.strip():
+        st.error("Could not read text. Is this a scanned image?")
     else:
-        # Step 1: Summary (Local Logic)
-        st.subheader("📊 Document Insights")
-        summary_result = offline_summarize(document_text)
-        st.info(summary_result)
+        doc_type, info = universal_extractor(raw_text)
+        
+        # Display Results
+        st.subheader(f"📑 {doc_type}")
+        
+        # Create 2 columns for a cleaner 'Founder' look
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if "Name" in info: st.write(f"**Name:** {info['Name']}")
+            if "ID/Barcode" in info: st.write(f"**Reference ID:** {info['ID/Barcode']}")
+        
+        with col2:
+            if "College/Org" in info: st.write(f"**Assigned To:** {info['College/Org']}")
+            if "Stream/Faculty" in info: st.write(f"**Stream:** {info['Stream/Faculty']}")
 
+        # Show Dates and Amounts
+        if info["Dates"] or info["Amounts"]:
+            st.write("---")
+            st.write(f"📅 **Detected Dates:** {', '.join(info['Dates']) if info['Dates'] else 'None'}")
+            st.write(f"💰 **Detected Values:** {', '.join(info['Amounts']) if info['Amounts'] else 'None'}")
+
+        # Dynamic Founder Advice
         st.divider()
+        st.subheader("💡 Founder Next Steps")
+        if "Selection" in doc_type:
+            st.warning("Action Required: Confirm your admission before the deadline mentioned in the dates above.")
+        elif "Bill" in doc_type:
+            st.info("Action Required: Verify the total amount and save the receipt for your accounts.")
+        else:
+            st.write("Document successfully indexed. Use the search bar below for specific details.")
 
-        # Step 2: Search (Local Logic)
-        st.subheader("🔍 Find Information")
-        user_query = st.text_input("What would you like to find? (e.g., 'Total', 'Date', 'Marks')")
-
-        if user_query:
-            answer = offline_search(document_text, user_query)
-            st.success(answer)
+        # Local Search Feature
+        st.write("---")
+        query = st.text_input("🔍 Quick Search (e.g. 'Science' or 'Jehanabad')")
+        if query:
+            clean_text = clean_extracted_text(raw_text)
+            if query.lower() in clean_text.lower():
+                # Find the sentence containing the word
+                sentences = clean_text.split('.')
+                for s in sentences:
+                    if query.lower() in s.lower():
+                        st.success(f"**Found:** ...{s.strip()}...")
+                        break
+            else:
+                st.error("Keyword not found in this document.")
