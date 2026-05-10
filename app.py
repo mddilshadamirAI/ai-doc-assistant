@@ -100,7 +100,7 @@ if uploaded_file:
 
         # Dynamic Founder Advice
         st.divider()
-        st.subheader("💡 Founder Next Steps")
+        st.subheader("💡 Your Next Steps")
         if "Selection" in doc_type:
             st.warning("Action Required: Confirm your admission before the deadline mentioned in the dates above.")
         elif "Bill" in doc_type:
