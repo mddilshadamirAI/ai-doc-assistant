@@ -55,7 +55,7 @@ def universal_extractor(text):
 
 # --- App UI ---
 st.title("📄 Dilshad Smart Doc Insight")
-st.markdown("### Professional Offline Document Analysis")
+st.markdown("###Document Analyser")
 
 with st.sidebar:
     st.header("App Stats")
