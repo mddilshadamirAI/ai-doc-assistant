@@ -1,64 +1,88 @@
 import streamlit as st
-import google.generativeai as genai
 from PyPDF2 import PdfReader
+import re
+from collections import Counter
 
 # --- Page Configuration ---
-st.set_page_config(page_title="Dilshad AI Document Assistant", page_icon="📄")
+st.set_page_config(page_title="Dilshad Smart Doc Insight", page_icon="📄")
 
-# --- Security: Get API Key from Streamlit Secrets ---
-if "GOOGLE_API_KEY" in st.secrets:
-    # Force the stable 'v1' API instead of 'v1beta'
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-else:
-    st.error("Please set the GOOGLE_API_KEY in your Streamlit Secrets.")
-    st.stop()
+# --- NON-AI LOGIC FUNCTIONS ---
 
-# --- Try the newest supported model names ---
-# In 2026, 'gemini-2.5-flash' or 'gemini-3-flash' are the standard free models.
-try:
-    model = genai.GenerativeModel('gemini-2.0-flash-lite')
-except:
-    # Fallback to the latest version of Gemini 3 if 2.5 is busy
-    model = genai.GenerativeModel('gemini-2.5-flash')
+def offline_summarize(text):
+    """Summarizes text by finding the most frequent important words."""
+    # 1. Identify Document Type based on keywords
+    doc_type = "General Document"
+    text_lower = text.lower()
+    if any(word in text_lower for word in ["bill", "invoice", "amt", "due date", "payable"]):
+        doc_type = "Bill / Invoice"
+    elif any(word in text_lower for word in ["marks", "grade", "result", "percentage", "roll no"]):
+        doc_type = "Marksheet / Academic Record"
+    elif any(word in text_lower for word in ["aadhaar", "pan card", "passport", "dob", "identity"]):
+        doc_type = "Identity Document"
 
-@st.cache_data
-def get_ai_summary(text):
-    """Summarizes the document once and saves the result."""
-    summary_prompt = f"""
-    Analyze this document text:
-    1. Identify document type (Bill, Marksheet, ID, etc.).
-    2. Provide a 3-bullet point summary.
-    3. Give specific advice (how to pay if bill, top marks if marksheet).
+    # 2. Extract Key Dates and Amounts
+    dates = re.findall(r'\d{2}[/-]\d{2}[/-]\d{4}', text)
+    amounts = re.findall(r'(?:₹|Rs\.|Rs|Total|Amt)\s*[:]*\s*(\d+(?:,\d+)*(?:\.\d+)?)', text, re.IGNORECASE)
     
-    Text: {text}
-    """
-    response = model.generate_content(summary_prompt)
-    return response.text
+    # 3. Simple Summary Generation
+    sentences = text.split('.')
+    # Filter sentences to find 'important' ones
+    summary_lines = []
+    for s in sentences:
+        if any(key in s.lower() for key in ["total", "date", "name", "no", "id", "result"]):
+            if len(s.strip()) > 10:
+                summary_lines.append(s.strip())
+    
+    summary = f"**Document Type:** {doc_type}\n\n"
+    summary += "**Key Highlights:**\n"
+    for line in summary_lines[:3]: # Top 3 important lines
+        summary += f"* {line}\n"
+    
+    if doc_type == "Bill / Invoice" and amounts:
+        summary += f"\n**Founder Advice:** This looks like a bill for ₹{amounts[0]}. Make sure to check the due date to avoid late fees!"
+    elif doc_type == "Marksheet / Academic Record":
+        summary += f"\n**Founder Advice:** Great job on these results! Focus on the subjects with the highest marks for your portfolio."
+        
+    return summary
 
-@st.cache_data
-def get_ai_answer(text, question):
-    """Answers specific questions about the document."""
-    chat_prompt = f"Context: {text}\nQuestion: {question}"
-    response = model.generate_content(chat_prompt)
-    return response.text
+def offline_search(text, query):
+    """Finds specific info in the text without AI."""
+    query = query.lower()
+    sentences = text.split('.')
+    
+    # Check for date requests
+    if "date" in query:
+        dates = re.findall(r'\d{2}[/-]\d{2}[/-]\d{4}', text)
+        return f"I found these dates in the document: {', '.join(dates)}" if dates else "No dates found."
+    
+    # Check for amount requests
+    if "amount" in query or "total" in query or "marks" in query:
+        numbers = re.findall(r'(\d+(?:,\d+)*(?:\.\d+)?)', text)
+        relevant_context = [s for s in sentences if any(k in s.lower() for k in ["total", "marks", "rs", "₹"])]
+        return f"Possible values found: {', '.join(numbers[:5])}\n\nContext: {relevant_context[0] if relevant_context else 'No context found.'}"
+
+    # General Search
+    for s in sentences:
+        if query in s.lower():
+            return f"Match found: ...{s.strip()}..."
+            
+    return "I couldn't find a direct answer. Try searching for a specific keyword like 'Total' or 'Date'."
+
 # --- App UI ---
-st.title("📄Dilshad Smart Doc Insight")
-st.markdown("Upload any document (Bill, Marksheet, ID) and let AI analyze it.")
+st.title("📄 Dilshad Smart Doc Insight (Offline Mode)")
+st.markdown("Upload a PDF. This version works **without AI** using fast pattern matching.")
 
-# Sidebar for instructions
 with st.sidebar:
-    st.header("How to use")
-    st.write("1. Upload a PDF document.")
-    st.write("2. Wait for the automatic summary.")
-    st.write("3. Ask specific questions below.")
-    st.warning("Privacy Note: Avoid uploading highly sensitive personal data to public tools.")
+    st.header("Founder Path Mode")
+    st.info("This version uses Regex & Logic. No API limits!")
+    st.write("1. Upload PDF")
+    st.write("2. Get Instant Extraction")
+    st.write("3. Search for Keywords")
 
-# File Uploader
 uploaded_file = st.file_uploader("Upload your document (PDF only)", type="pdf")
 
 if uploaded_file is not None:
-    # Read the PDF
-    with st.spinner("Reading document..."):
+    with st.spinner("Processing locally..."):
         reader = PdfReader(uploaded_file)
         document_text = ""
         for page in reader.pages:
@@ -67,34 +91,19 @@ if uploaded_file is not None:
                 document_text += content
 
     if document_text.strip() == "":
-        st.error("Could not extract text from this PDF. It might be an image-only scan.")
+        st.error("Text extraction failed. This might be a scanned image.")
     else:
-        # Step 1: Automatic Summary & Suggestion
-        st.subheader("🤖 AI Analysis & Suggestions")
-        
-        # We tell the AI how to behave based on the document type
-        summary_prompt = f"""
-        Analyze the following text extracted from a document. 
-        1. Identify what kind of document it is (Bill, Marksheet, ID, etc.).
-        2. Provide a 3-bullet point summary of the most important info.
-        3. If it is a bill, suggest how/where to pay. If it is a marksheet, highlight top performance.
-        
-        Document Text:
-        {document_text}
-        """
-        
-        with st.spinner("Generating summary..."):
-            response = model.generate_content(summary_prompt)
-            st.info(response.text)
+        # Step 1: Summary (Local Logic)
+        st.subheader("📊 Document Insights")
+        summary_result = offline_summarize(document_text)
+        st.info(summary_result)
 
         st.divider()
 
-        # Step 2: Chatbot for questions
-        st.subheader("💬 Ask a Question about this File")
-        user_query = st.text_input("Example: 'What is the due date?' or 'What are my total marks?'")
+        # Step 2: Search (Local Logic)
+        st.subheader("🔍 Find Information")
+        user_query = st.text_input("What would you like to find? (e.g., 'Total', 'Date', 'Marks')")
 
         if user_query:
-            chat_prompt = f"Using this document context: {document_text}. Answer this question: {user_query}"
-            with st.spinner("Thinking..."):
-                chat_response = model.generate_content(chat_prompt)
-                st.success(chat_response.text)
+            answer = offline_search(document_text, user_query)
+            st.success(answer)
