@@ -1,4 +1,4 @@
-# 📄 AI Document Insight & Assistant
+# 📄 Document Insight & Assistant
 
 An intelligent web application built with **Python** and **Streamlit** that allows users to upload documents (PDFs) and get instant summaries, insights, and interactive chat capabilities. 
 
