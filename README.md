@@ -11,7 +11,6 @@ This project is designed to handle everyday documents like **Electricity Bills, 
 *   **Smart Categorization:** Automatically identifies if the document is a bill, an academic record, or an ID.
 *   **Instant Summarization:** Provides a 3-bullet point breakdown of critical information (dates, amounts, names).
 *   **Contextual Suggestions:** If it's a bill, it suggests payment steps; if it's a marksheet, it highlights top performance.
-*   **AI Chatbot:** Ask specific questions like "What is my consumer ID?" or "What was my score in Physics?"
 *   **Privacy-Focused:** Designed to work with Streamlit's secure secrets management.
 
 ---
