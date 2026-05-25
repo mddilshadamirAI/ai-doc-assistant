@@ -28,3 +28,5 @@ This project is designed to handle everyday documents like **Electricity Bills, 
 1. **Clone the repository:**
    ```bash
    git clone [https://github.com/mddilshadamirAI/ai-doc-assistant.git](https://github.com/mddilshadamirAI/ai-doc-assistant.git)
+
+# UNDER MAINTAINCE 
