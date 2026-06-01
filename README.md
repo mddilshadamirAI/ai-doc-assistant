@@ -29,4 +29,4 @@ This project is designed to handle everyday documents like **Electricity Bills, 
    ```bash
    git clone [https://github.com/mddilshadamirAI/ai-doc-assistant.git](https://github.com/mddilshadamirAI/ai-doc-assistant.git)
 
-# UNDER MAINTAINCE 
+# UNDER MAINTAINANCE SOON THIS WILL BE FUNCTIONAL
