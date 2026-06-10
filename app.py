@@ -54,7 +54,7 @@ def universal_extractor(text):
     return doc_type, data
 
 # --- App UI ---
-st.title("📄 Dilshad Smart Doc Insight")
+st.title("📄Smart Document Insight")
 st.markdown("### Document Analyser")
 
 with st.sidebar:
@@ -100,7 +100,7 @@ if uploaded_file:
 
         # Dynamic Founder Advice
         st.divider()
-        st.subheader("💡 Founder Next Steps")
+        st.subheader("💡 Your Next Steps")
         if "Selection" in doc_type:
             st.warning("Action Required: Confirm your admission before the deadline mentioned in the dates above.")
         elif "Bill" in doc_type:
