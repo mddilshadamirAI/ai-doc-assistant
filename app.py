@@ -4,7 +4,7 @@ import re
 import string
 
 # --- Page Configuration ---
-st.set_page_config(page_title="Dilshad Smart Doc Insight", page_icon="📄", layout="centered")
+st.set_page_config(page_title="Smart Document Insight", page_icon="📄", layout="centered")
 
 # --- REFINED LOGIC FUNCTIONS ---
 
@@ -55,7 +55,7 @@ def universal_extractor(text):
 
 # --- App UI ---
 st.title("📄Smart Document Insight")
-st.markdown("### Document Analyser")
+st.markdown("### Document Reader")
 
 with st.sidebar:
     st.header("App Stats")
