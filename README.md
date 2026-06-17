@@ -25,3 +25,5 @@ This project is designed to handle everyday documents like **Electricity Bills, 
 
 # UNDER MAINTAINANCE
 It is under maintainance it doesn't have ai integrated yet.
+
+## This doesn't include any llm api.
