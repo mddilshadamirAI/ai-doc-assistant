@@ -1,3 +1,5 @@
+<div align="center">
+
 # 📄 DOCUMENT INSIGHT
 
 An intelligent, utility-first web application designed to parse and extract structured data from common documents, including electricity bills, marksheets, bank records, and government identification.
@@ -25,9 +27,12 @@ An intelligent, utility-first web application designed to parse and extract stru
 ---
 
 ## 🚧 Status: Under Maintenance
+
 This project is currently undergoing active refinement. 
 *   **Note:** The application currently focuses on structural extraction and parsing; **integrated LLM functionality is not yet implemented.**
 
 ---
 
 © 2026 MD DILSHAD AMIR | *Engineered for Efficiency.*
+
+</div>
