@@ -1,29 +1,33 @@
-# 📄 Document Insight
+# 📄 DOCUMENT INSIGHT
 
-An intelligent web application built with **Python** and **Streamlit** that allows users to upload documents (PDFs) and get instant summaries, insights, and interactive chat capabilities. 
-
-This project is designed to handle everyday documents like **Electricity Bills, Marksheets, Bank Passbooks, and Government IDs** using the power of AI-driven parsing.
+An intelligent, utility-first web application designed to parse and extract structured data from common documents, including electricity bills, marksheets, bank records, and government identification.
 
 ---
 
-## 🚀 Why Use This Tool?
+## 🚀 Capabilities
 
-| Feature | Benefit |
+| Feature | Description |
 | :--- | :--- |
-| **Instant Summarization** | Get a clear, 3-bullet point breakdown of critical data (dates, amounts, names). |
-| **Contextual Intelligence** | Dynamic suggestions: Payment reminders for bills, performance highlights for marksheets. |
-| **Privacy-Focused** | Built with secure architecture using Streamlit's secrets management. |
+| **Data Extraction** | Automated retrieval of critical fields like dates, financial amounts, and identity details. |
+| **Summarization** | Distills complex document structures into actionable, concise key-point summaries. |
+| **Contextual Insights** | Proactive categorization of data, such as payment deadlines or academic performance tracking. |
+| **Privacy-First** | Secure architecture utilizing environment-level secrets management. |
 
 ---
 
-## 🛠️ The Engine Under the Hood
+## 🛠️ Technical Specifications
 
 * **Language:** Python 3.10+
-* **Framework:** [Streamlit](https://streamlit.io/) — *Rapid web deployment*
-* **PDF Parsing:** PyPDF2 — *Efficient document extraction*
-* **Hosting:** GitHub + Streamlit Cloud
+* **Framework:** Streamlit (Rapid web deployment)
+* **PDF Parsing:** PyPDF2 (Efficient text extraction)
+* **Architecture:** Modular codebase optimized for low-latency processing
 
-# UNDER MAINTAINANCE
-It is under maintainance it doesn't have ai integrated yet.
+---
 
-## This doesn't include any llm api.
+## 🚧 Status: Under Maintenance
+This project is currently undergoing active refinement. 
+*   **Note:** The application currently focuses on structural extraction and parsing; **integrated LLM functionality is not yet implemented.**
+
+---
+
+© 2026 MD DILSHAD AMIR | *Engineered for Efficiency.*
