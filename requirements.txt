@@ -1,3 +1,5 @@
-streamlit
-PyPDF2
-pypdf
+streamlit>=1.25.0
+pypdf>=3.10.0
+rapidfuzz>=3.0.0
+pandas>=2.0.0
+spacy>=3.5.0
